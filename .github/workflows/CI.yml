@@ -155,12 +155,19 @@ jobs:
 
   windows:
     needs: test
-    runs-on: windows-latest
 
     strategy:
       fail-fast: false
       matrix:
-        target: [x64, x86] # x86 is not supported by pypy
+        os: [windows-latest, windows-11-arm]
+        target: [x64, x86, aarch64] # x86 is not supported by pypy, 3.9 and 3.10 not supported on aarch64
+        exclude:
+          - os: windows-11-arm
+            target: x64
+          - os: windows-11-arm
+            target: x86
+          - os: windows-latest
+            target: aarch64
 
     steps:
       - uses: actions/checkout@v4
@@ -169,25 +176,26 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: |
-            3.9
-            3.10
+            ${{ matrix.os != 'windows-11-arm' && '3.9' || '' }}
+            ${{ matrix.os != 'windows-11-arm' && '3.10' || '' }}
             3.11
             3.12
             3.13
             ${{ matrix.target == 'x64' && 'pypy3.9' || '' }}
             ${{ matrix.target == 'x64' && 'pypy3.10' || '' }}
+            ${{ matrix.target == 'x64' && 'pypy3.11' || '' }}
           allow-prereleases: true
           architecture: ${{ matrix.target }}
       - name: Build wheels
         uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.target }}
-          args: --release --out dist --interpreter '3.9 3.10 3.11 3.12 3.13' --interpreter ${{ matrix.target == 'x64' && 'pypy3.9 pypy3.10' || '' }}
+          args: --release --out dist --interpreter '3.11 3.12 3.13' --interpreter ${{ matrix.target == 'x64' && 'pypy3.9 pypy3.10 pypy3.11' || '' }} --interpreter ${{ matrix.os != 'windows-11-arm' && '3.9 3.10' || '' }}
           sccache: ${{ github.ref_type != 'tag' }} # zizmor: ignore[cache-poisoning]
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
-          name: dist-${{ github.job }}-${{ matrix.target }}
+          name: dist-${{ github.job }}-${{ matrix.os }}-${{ matrix.target }}
           path: dist
 
   # free-threaded and normal builds share a site-packages folder on Windows so
