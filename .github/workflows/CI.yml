@@ -161,14 +161,14 @@ jobs:
       fail-fast: false
       matrix:
         os: [windows-latest, windows-11-arm]
-        target: [x64, x86, aarch64] # x86 is not supported by pypy, 3.9 and 3.10 not supported on aarch64
+        target: [x64, x86, arm64] # x86 is not supported by pypy, 3.9 and 3.10 are not supported on arm64
         exclude:
           - os: windows-11-arm
             target: x64
           - os: windows-11-arm
             target: x86
           - os: windows-latest
-            target: aarch64
+            target: arm64
 
     steps:
       - uses: actions/checkout@v4
