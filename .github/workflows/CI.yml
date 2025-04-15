@@ -161,14 +161,14 @@ jobs:
       fail-fast: false
       matrix:
         os: [windows-latest, windows-11-arm]
-        target: [x64, x86, aarch64-pc-windows-msvc] # x86 is not supported by pypy, 3.9 and 3.10 are not supported on arm64
+        target: [x64, x86, aarch64] # x86 is not supported by pypy, 3.9 and 3.10 are not supported on arm64
         exclude:
           - os: windows-11-arm
             target: x64
           - os: windows-11-arm
             target: x86
           - os: windows-latest
-            target: aarch64-pc-windows-msvc
+            target: aarch64
 
     steps:
       - uses: actions/checkout@v4
@@ -185,7 +185,7 @@ jobs:
             ${{ matrix.target == 'x64' && 'pypy3.9' || '' }}
             ${{ matrix.target == 'x64' && 'pypy3.10' || '' }}
           allow-prereleases: true
-          architecture: ${{ matrix.target == 'aarch64-pc-windows-msvc' && 'arm64' || matrix.target }} # map arm64 target for setup-python
+          architecture: ${{ matrix.target == 'aarch64' && 'arm64' || matrix.target }} # map arm64 target for setup-python
       - name: Install rustup (Windows 11 ARM64) # rust is currently missing from the windows-11-arm runner
         if: matrix.os == 'windows-11-arm'
         shell: pwsh
