@@ -155,6 +155,7 @@ jobs:
 
   windows:
     needs: test
+    runs-on: ${{ matrix.os }}
 
     strategy:
       fail-fast: false
